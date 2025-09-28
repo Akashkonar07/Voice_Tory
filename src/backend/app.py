@@ -4,9 +4,13 @@ import json
 import os
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from .inventory_routes import inventory_bp
 
 app = Flask(__name__, template_folder='../frontend/templates')
 CORS(app)  # Enable CORS for all routes
+
+# Register inventory blueprint
+app.register_blueprint(inventory_bp)
 
 # Configure upload folder
 UPLOAD_FOLDER = '../data/uploads'

@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).parent.parent
 # Application settings
 APP_NAME = "Speech-to-Text and Text-to-Speech Application"
 VERSION = "1.0.0"
-DEBUG = True
+DEBUG = False
 HOST = "0.0.0.0"
 PORT = 5000
 

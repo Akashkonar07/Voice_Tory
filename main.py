@@ -22,5 +22,6 @@ if __name__ == '__main__':
         debug=DEBUG,
         host=HOST,
         port=PORT,
-        threaded=True
+        threaded=False,
+        use_reloader=False
     )

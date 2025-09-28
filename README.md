@@ -1,9 +1,10 @@
-# Speech-to-Text and Text-to-Speech Application
+# Voice-Driven Inventory Management System
 
-A modern web-based application that converts speech to text and text to speech using advanced speech recognition technologies.
+A modern web-based application that converts speech to text and includes a comprehensive voice-driven inventory management system for small and medium shopkeepers.
 
 ## Features
 
+### Speech Recognition
 - **Real-time Speech Recognition**: Convert live speech to text using Web Speech API
 - **Audio File Processing**: Upload and process audio files for speech recognition
 - **Text-to-Speech**: Convert text back to speech
@@ -11,16 +12,32 @@ A modern web-based application that converts speech to text and text to speech u
 - **Python 3.13 Support**: Full compatibility with the latest Python version
 - **Responsive Design**: Works on desktop and mobile devices
 
+### Inventory Management
+- **Voice Command Processing**: Process natural language commands like "Add 10 packets of milk", "Sold 5 soaps", "Delete 2 bottles of oil"
+- **Real-time Inventory Updates**: Automatically update inventory levels based on voice commands
+- **MongoDB Integration**: Store all inventory data, sales history, and command logs in MongoDB Atlas
+- **Interactive Dashboard**: Visual representation of inventory with Chart.js
+- **Sales Tracking**: Track all sales transactions with timestamps
+- **Command Logging**: Maintain detailed logs of all inventory commands
+- **Statistics & Analytics**: View total products, quantities, and sales statistics
+- **Error Handling**: Comprehensive error handling for invalid commands
+
 ## Project Structure
 
 ```
 ├── src/
 │   ├── backend/           # Flask application and API endpoints
 │   │   ├── app.py        # Main Flask application
+│   │   ├── inventory_routes.py  # Inventory API endpoints
 │   │   └── textToSpeech.py  # Desktop GUI application
+│   │   └── db/           # Database models and operations
+│   │       ├── __init__.py
+│   │       └── models.py # MongoDB models for inventory
 │   ├── frontend/         # Frontend templates and static files
 │   │   └── templates/    # HTML templates
+│   │       └── index.html # Main application interface
 │   ├── utils/           # Utility functions and helpers
+│   │   └── parser.py    # Voice command parser
 │   └── compatibility/   # Python 3.13 compatibility modules
 │       ├── aifc.py      # Mock aifc module
 │       └── audioop.py   # Mock audioop module
@@ -38,6 +55,13 @@ A modern web-based application that converts speech to text and text to speech u
 ```
 
 ## Installation
+
+### Prerequisites
+- Python 3.13 or higher
+- MongoDB Atlas account (for inventory management)
+- Modern web browser (Chrome, Edge, or Safari 14.1+)
+
+### Setup Steps
 
 1. **Clone the repository** (if applicable)
 2. **Create and activate virtual environment**:
@@ -57,10 +81,22 @@ A modern web-based application that converts speech to text and text to speech u
    copy src\compatibility\audioop.py .venv\Lib\site-packages\
    ```
 
-5. **Set up environment variables**:
+5. **Set up MongoDB Atlas**:
+   - Create a MongoDB Atlas account at [https://www.mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+   - Create a new cluster and database named `inventory_management`
+   - Get your connection string from the Atlas dashboard
+   - Set up environment variables:
    ```bash
    copy config\.env.example .env
-   # Edit .env with your preferred settings
+   # Edit .env with your MongoDB connection string:
+   MONGODB_URI=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/inventory_management?retryWrites=true&w=majority
+   ```
+
+6. **Set up additional environment variables**:
+   ```bash
+   FLASK_ENV=development
+   FLASK_DEBUG=True
+   SECRET_KEY=your_secret_key_here
    ```
 
 ## Usage
@@ -78,6 +114,35 @@ A modern web-based application that converts speech to text and text to speech u
    - Click "Start Listening" to begin real-time speech recognition
    - Upload audio files for batch processing
    - View recognition history and logs
+
+### Inventory Management
+
+The system now includes a comprehensive voice-driven inventory management system:
+
+#### Voice Commands
+Use natural language commands to manage your inventory:
+
+- **Add products**: "Add 10 packets of milk", "Add 25 apples"
+- **Record sales**: "Sold 5 soaps", "Sold 3 bottles of water"
+- **Delete items**: "Delete 2 bottles of oil", "Delete 1 chocolate bar"
+
+#### Dashboard Features
+- **Real-time Inventory Display**: View current product quantities
+- **Interactive Charts**: Visual representation of inventory levels
+- **Sales Statistics**: Track total sales and product performance
+- **Command History**: View all processed inventory commands
+- **Error Handling**: Clear feedback for invalid commands
+
+#### API Endpoints
+The system provides several API endpoints for inventory management:
+
+- `POST /api/inventory/command` - Process inventory commands
+- `GET /api/inventory/inventory` - Get current inventory
+- `GET /api/inventory/sales` - Get sales history
+- `GET /api/inventory/logs` - Get command logs
+- `GET /api/inventory/stats` - Get inventory statistics
+- `GET /api/inventory/examples` - Get command examples
+- `GET /api/inventory/health` - Health check
 
 ### Desktop GUI Application
 
