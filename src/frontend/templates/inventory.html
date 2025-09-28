@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Voice Tory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .inventory-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .inventory-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .inventory-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .inventory-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-container {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .inventory-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .inventory-list-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .list-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .item-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .inventory-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .inventory-item {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .inventory-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .item-quantity {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .quantity-low {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+        }
+
+        .quantity-normal {
+            background: linear-gradient(135deg, #ffaa00, #ff8800);
+        }
+
+        .quantity-high {
+            background: linear-gradient(135deg, #00c851, #00a040);
+        }
+
+        .item-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .item-category {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chart-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .chart-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+        }
+
+        .inventory-summary {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .summary-label {
+            color: #666;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-value {
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 1200px) {
+            .inventory-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .inventory-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                min-width: auto;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .inventory-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="navbar-brand">
+            <span>🎤</span>
+            <span>Voice Tory</span>
+        </a>
+        
+        <div class="navbar-nav">
+            <a href="#" onclick="navigateWithAuth('/dashboard')" class="nav-link">Dashboard</a>
+            <a href="#" onclick="navigateWithAuth('/speech-to-text')" class="nav-link">Speech to Text</a>
+            <a href="#" class="nav-link active">Inventory</a>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">User</span>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading inventory data...</p>
+        </div>
+
+        <div class="inventory-header">
+            <h1 class="inventory-title">📦 Inventory Management</h1>
+            <p class="inventory-subtitle">Manage your products, track stock levels, and analyze your inventory data</p>
+            
+            <div class="inventory-actions">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search products...">
+                </div>
+                
+                <select id="filterSelect" class="filter-select">
+                    <option value="all">All Products</option>
+                    <option value="low">Low Stock</option>
+                    <option value="high">High Stock</option>
+                </select>
+                
+                <button class="btn btn-primary" onclick="loadInventoryData()">🔄 Refresh</button>
+                <button class="btn btn-secondary" onclick="exportInventory()">📊 Export</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">📦</span>
+                <div class="stat-number" id="totalProducts">0</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <div class="stat-number" id="totalValue">$0</div>
+                <div class="stat-label">Total Value</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">⚠️</span>
+                <div class="stat-number" id="lowStock">0</div>
+                <div class="stat-label">Low Stock</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">💰</span>
+                <div class="stat-number" id="totalSales">0</div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+        </div>
+
+        <div class="inventory-content">
+            <div class="inventory-list-container">
+                <div class="list-header">
+                    <h3 class="list-title">Products</h3>
+                    <span class="item-count" id="itemCount">0 items</span>
+                </div>
+                
+                <div class="inventory-list" id="inventoryList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <p>No products found. Add some products to get started!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Inventory Overview</h3>
+                    <div class="chart-controls">
+                        <button class="chart-btn active" onclick="switchChart('bar')">Bar</button>
+                        <button class="chart-btn" onclick="switchChart('pie')">Pie</button>
+                        <button class="chart-btn" onclick="switchChart('line')">Line</button>
+                    </div>
+                </div>
+                <canvas id="inventoryChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+
+        <div class="inventory-summary">
+            <h3 class="summary-title">📋 Inventory Summary</h3>
+            <div class="summary-grid" id="summaryGrid">
+                <div class="summary-item">
+                    <div class="summary-label">Last Updated</div>
+                    <div class="summary-value" id="lastUpdated">Never</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Most Popular</div>
+                    <div class="summary-value" id="mostPopular">N/A</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Restock Needed</div>
+                    <div class="summary-value" id="restockNeeded">0 items</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Global variables
+        let inventoryData = [];
+        let filteredData = [];
+        let currentChart = null;
+        let currentChartType = 'bar';
+
+        // Check authentication and load user data
+        window.addEventListener('load', function() {
+            const sessionToken = localStorage.getItem('session_token');
+            const userName = localStorage.getItem('username');
+            const fullName = localStorage.getItem('full_name');
+            
+            if (!sessionToken) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if session token is in URL (for direct access)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlSessionToken = urlParams.get('session_token');
+            if (urlSessionToken && urlSessionToken !== sessionToken) {
+                localStorage.setItem('session_token', urlSessionToken);
+            }
+            
+            // Update user info
+            document.getElementById('userName').textContent = fullName || userName || 'User';
+            
+            // Update avatar
+            const avatar = document.getElementById('userAvatar');
+            const displayName = fullName || userName || 'User';
+            avatar.textContent = displayName.charAt(0).toUpperCase();
+            
+            // Load inventory data
+            loadInventoryData();
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function() {
+                filterInventory();
+            });
+
+            // Filter functionality
+            document.getElementById('filterSelect').addEventListener('change', function() {
+                filterInventory();
+            });
+        }
+
+        async function loadInventoryData() {
+            const loading = document.getElementById('loading');
+            const sessionToken = localStorage.getItem('session_token');
+            
+            loading.style.display = 'block';
+            
+            try {
+                // Validate session first
+                const validateResponse = await fetch('/api/auth/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_token: sessionToken
+                    })
+                });
+                
+                const validateData = await validateResponse.json();
+                
+                if (!validateData.success) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                // Load inventory data
+                const inventoryResponse = await fetch('/api/inventory/inventory', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
+                    }
+                });
+                
+                const inventoryDataResponse = await inventoryResponse.json();
+                
+                if (inventoryDataResponse.success) {
+                    inventoryData = inventoryDataResponse.products || [];
+                    filteredData = [...inventoryData];
+                    updateInventoryDisplay();
+                    updateChart();
+                    updateSummary();
+                } else {
+                    console.error('Failed to load inventory data:', inventoryDataResponse.error);
+                }
+                
+            } catch (error) {
+                console.error('Error loading inventory data:', error);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function filterInventory() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterType = document.getElementById('filterSelect').value;
+            
+            filteredData = inventoryData.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                                    (product.category && product.category.toLowerCase().includes(searchTerm));
+                
+                let matchesFilter = true;
+                if (filterType === 'low') {
+                    matchesFilter = product.quantity < 10;
+                } else if (filterType === 'high') {
+                    matchesFilter = product.quantity >= 50;
+                }
+                
+                return matchesSearch && matchesFilter;
+            });
+            
+            updateInventoryDisplay();
+        }
+
+        function updateInventoryDisplay() {
+            const inventoryList = document.getElementById('inventoryList');
+            const itemCount = document.getElementById('itemCount');
+            
+            itemCount.textContent = `${filteredData.length} items`;
+            
+            if (filteredData.length === 0) {
+                inventoryList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <p>No products found matching your criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            inventoryList.innerHTML = filteredData.map(product => {
+                const quantityClass = product.quantity < 10 ? 'quantity-low' :
+                                    product.quantity < 50 ? 'quantity-normal' : 'quantity-high';
+                
+                return `
+                    <div class="inventory-item">
+                        <div class="item-header">
+                            <div class="item-name">${product.name}</div>
+                            <div class="item-quantity ${quantityClass}">${product.quantity}</div>
+                        </div>
+                        <div class="item-details">
+                            <div><strong>Category:</strong> <span class="item-category">${product.category || 'Uncategorized'}</span></div>
+                            <div><strong>Price:</strong> $${product.price || 0}</div>
+                            <div><strong>Total Value:</strong> $${(product.price * product.quantity || 0).toFixed(2)}</div>
+                            <div><strong>Sold:</strong> ${product.total_sold || 0}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateStats();
+        }
+
+        function updateStats() {
+            const totalProducts = filteredData.length;
+            const totalValue = filteredData.reduce((sum, product) => {
+                return sum + (product.price * product.quantity);
+            }, 0);
+            const lowStock = filteredData.filter(product => product.quantity < 10).length;
+            const totalSales = filteredData.reduce((sum, product) => {
+                return sum + (product.total_sold || 0);
+            }, 0);
+            
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('totalValue').textContent = `$${totalValue.toFixed(2)}`;
+            document.getElementById('lowStock').textContent = lowStock;
+            document.getElementById('totalSales').textContent = totalSales;
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('inventoryChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const chartData = prepareChartData();
+            
+            currentChart = new Chart(ctx, {
+                type: currentChartType,
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: currentChartType !== 'pie' ? {
+                        y: {
+                            beginAtZero: true
+                        }
+                    } : {}
+                }
+            });
+        }
+
+        function prepareChartData() {
+            const topProducts = filteredData.slice(0, 10);
+            
+            if (currentChartType === 'pie') {
+                return {
+                    labels: topProducts.map(p => p.name),
+                    datasets: [{
+                        data: topProducts.map(p => p.quantity),
+                        backgroundColor: [
+                            '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                            '#ffecd2', '#fcb69f'
+                        ]
+                    }]
+                };
+            } else {
+                return {
+                    labels: topProducts.map(p => p.name),
+                    datasets: [{
+                        label: 'Quantity',
+                        data: topProducts.map(p => p.quantity),
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2
+                    }]
+                };
+            }
+        }
+
+        function switchChart(type) {
+            currentChartType = type;
+            
+            // Update button states
+            document.querySelectorAll('.chart-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateChart();
+        }
+
+        function updateSummary() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleString();
+            
+            // Find most popular product (most sold)
+            const mostPopular = inventoryData.reduce((prev, current) => {
+                return (prev.total_sold || 0) > (current.total_sold || 0) ? prev : current;
+            }, inventoryData[0]);
+            
+            document.getElementById('mostPopular').textContent = mostPopular ? mostPopular.name : 'N/A';
+            
+            // Count restock needed
+            const restockNeeded = inventoryData.filter(product => product.quantity < 10).length;
+            document.getElementById('restockNeeded').textContent = `${restockNeeded} items`;
+        }
+
+        function exportInventory() {
+            if (filteredData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const csvContent = [
+                ['Product Name', 'Category', 'Quantity', 'Price', 'Total Value', 'Total Sold'],
+                ...filteredData.map(product => [
+                    product.name,
+                    product.category || 'Uncategorized',
+                    product.quantity,
+                    product.price || 0,
+                    (product.price * product.quantity || 0).toFixed(2),
+                    product.total_sold || 0
+                ])
+            ].map(row => row.join(',')).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `inventory_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            const sessionToken = localStorage.getItem('session_token');
+            
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_token: sessionToken
+                    })
+                });
+            } catch (error) {
+                console.error('Error during logout:', error);
+            } finally {
+                // Clear local storage
+                localStorage.removeItem('session_token');
+                localStorage.removeItem('username');
+                localStorage.removeItem('full_name');
+                
+                // Redirect to login
+                window.location.href = '/login';
+            }
+        });
+        
+        // Function to navigate with authentication
+        function navigateWithAuth(url) {
+            const sessionToken = localStorage.getItem('session_token');
+            if (sessionToken) {
+                window.location.href = `${url}?session_token=${encodeURIComponent(sessionToken)}`;
+            } else {
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Voice Tory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .feature-btn.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .feature-btn.secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .feature-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .welcome-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .welcome-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-message {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .dashboard-title {
+                font-size: 2rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="navbar-brand">
+            <span>🎤</span>
+            <span>Voice Tory</span>
+        </a>
+        
+        <div class="navbar-nav">
+            <a href="#" class="nav-link active">Dashboard</a>
+            <a href="#" onclick="navigateWithAuth('/speech-to-text')" class="nav-link">Speech to Text</a>
+            <a href="#" onclick="navigateWithAuth('/inventory')" class="nav-link">Inventory</a>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">User</span>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading dashboard...</p>
+        </div>
+
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Welcome to Voice Tory</h1>
+            <p class="dashboard-subtitle">Manage your inventory with the power of voice commands</p>
+        </div>
+
+        <div class="welcome-section">
+            <h2 class="welcome-title">Hello, <span id="welcomeName">User</span>! 👋</h2>
+            <p class="welcome-message">
+                Welcome to your Voice Tory dashboard. From here, you can access all the powerful features of our inventory management system. 
+                Use voice commands to quickly add, update, and manage your inventory, or switch to our intuitive web interface for detailed control.
+            </p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">📦</span>
+                <div class="stat-number" id="totalProducts">0</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <div class="stat-number" id="totalValue">$0</div>
+                <div class="stat-label">Total Value</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">⚠️</span>
+                <div class="stat-number" id="lowStock">0</div>
+                <div class="stat-label">Low Stock</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">💰</span>
+                <div class="stat-number" id="totalSales">0</div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card" onclick="navigateWithAuth('/speech-to-text')">
+                <span class="feature-icon">🎤</span>
+                <h3 class="feature-title">Speech to Text</h3>
+                <p class="feature-description">
+                    Convert your voice commands into text and execute inventory operations using natural language. 
+                    Simply speak your commands and watch them come to life.
+                </p>
+                <button class="feature-btn primary">Start Speaking</button>
+            </div>
+            
+            <div class="feature-card" onclick="navigateWithAuth('/inventory')">
+                <span class="feature-icon">📦</span>
+                <h3 class="feature-title">Inventory Management</h3>
+                <p class="feature-description">
+                    Manage your inventory with our comprehensive dashboard. Track products, monitor stock levels, 
+                    and generate detailed reports with beautiful visualizations.
+                </p>
+                <button class="feature-btn secondary">Manage Inventory</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication and load user data
+        window.addEventListener('load', function() {
+            const sessionToken = localStorage.getItem('session_token');
+            const userName = localStorage.getItem('username');
+            const fullName = localStorage.getItem('full_name');
+            
+            if (!sessionToken) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if session token is in URL (for direct access)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlSessionToken = urlParams.get('session_token');
+            if (urlSessionToken && urlSessionToken !== sessionToken) {
+                localStorage.setItem('session_token', urlSessionToken);
+            }
+            
+            // Update user info
+            document.getElementById('userName').textContent = fullName || userName || 'User';
+            document.getElementById('welcomeName').textContent = fullName || userName || 'User';
+            
+            // Update avatar
+            const avatar = document.getElementById('userAvatar');
+            const displayName = fullName || userName || 'User';
+            avatar.textContent = displayName.charAt(0).toUpperCase();
+            
+            // Load dashboard data
+            loadDashboardData();
+        });
+
+        // Load dashboard statistics
+        async function loadDashboardData() {
+            const loading = document.getElementById('loading');
+            const sessionToken = localStorage.getItem('session_token');
+            
+            loading.style.display = 'block';
+            
+            try {
+                // Validate session first
+                const validateResponse = await fetch('/api/auth/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_token: sessionToken
+                    })
+                });
+                
+                const validateData = await validateResponse.json();
+                
+                if (!validateData.success) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                // Load inventory data
+                const inventoryResponse = await fetch('/api/inventory/inventory', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
+                    }
+                });
+                
+                const inventoryData = await inventoryResponse.json();
+                
+                if (inventoryData.success) {
+                    updateDashboardStats(inventoryData.products || []);
+                }
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Update dashboard statistics
+        function updateDashboardStats(products) {
+            const totalProducts = products.length;
+            const totalValue = products.reduce((sum, product) => {
+                return sum + (product.price * product.quantity);
+            }, 0);
+            const lowStock = products.filter(product => product.quantity < 10).length;
+            const totalSales = products.reduce((sum, product) => {
+                return sum + (product.total_sold || 0);
+            }, 0);
+            
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('totalValue').textContent = `$${totalValue.toFixed(2)}`;
+            document.getElementById('lowStock').textContent = lowStock;
+            document.getElementById('totalSales').textContent = totalSales;
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            const sessionToken = localStorage.getItem('session_token');
+            
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_token: sessionToken
+                    })
+                });
+            } catch (error) {
+                console.error('Error during logout:', error);
+            } finally {
+                // Clear local storage
+                localStorage.removeItem('session_token');
+                localStorage.removeItem('username');
+                localStorage.removeItem('full_name');
+                
+                // Redirect to login
+                window.location.href = '/login';
+            }
+        });
+        
+        // Function to navigate with authentication
+        function navigateWithAuth(url) {
+            const sessionToken = localStorage.getItem('session_token');
+            if (sessionToken) {
+                window.location.href = `${url}?session_token=${encodeURIComponent(sessionToken)}`;
+            } else {
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html>

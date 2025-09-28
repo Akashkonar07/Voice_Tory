@@ -1,10 +1,27 @@
 from flask import Blueprint, request, jsonify, current_app
 from ..utils import parse_inventory_command, get_command_examples
 from .db.models import get_db
+from .auth_routes import require_auth
 import json
 from datetime import datetime
 
 inventory_bp = Blueprint("inventory", __name__, url_prefix="/api/inventory")
+
+@inventory_bp.route("", methods=["GET"])
+def inventory_base():
+    """
+    Base endpoint for /api/inventory - redirects to inventory list.
+    """
+    return jsonify({
+        "success": True,
+        "message": "Inventory API is available",
+        "endpoints": {
+            "inventory": "/api/inventory/inventory",
+            "stats": "/api/inventory/stats",
+            "command": "/api/inventory/command",
+            "examples": "/api/inventory/examples"
+        }
+    })
 
 def serialize_datetime(obj):
     """Convert datetime objects to ISO format strings for JSON serialization."""
@@ -62,15 +79,18 @@ def process_command():
         quantity = parsed_result["quantity"]
         product = parsed_result["product"]
         
+        # Get user_id from authentication
+        user_id = getattr(request, 'user', {}).get('user_id')
+        
         db = get_db()
         result = None
         
         if action == "add":
-            result = db.add_product(product, quantity)
+            result = db.add_product(product, quantity, user_id)
         elif action == "sell":
-            result = db.sell_product(product, quantity)
+            result = db.sell_product(product, quantity, user_id)
         elif action == "delete":
-            result = db.delete_product(product, quantity)
+            result = db.delete_product(product, quantity, user_id)
         else:
             current_app.logger.error(f"Unknown action: {action}")
             return jsonify({
@@ -113,16 +133,20 @@ def process_command():
         }), 500
 
 @inventory_bp.route("/inventory", methods=["GET"])
+@require_auth
 def get_inventory():
     """
-    Get current inventory status.
+    Get current inventory status for the authenticated user.
     
     Returns:
-        JSON: List of all products with quantities
+        JSON: List of all products with quantities for the user
     """
     try:
+        # Get user_id from authentication
+        user_id = getattr(request, 'user', {}).get('user_id')
+        
         db = get_db()
-        result = db.get_inventory()
+        result = db.get_inventory(user_id)
         
         # Serialize the result to handle datetime objects
         serialized_result = serialize_datetime(result)
@@ -141,16 +165,20 @@ def get_inventory():
 
 
 @inventory_bp.route("/stats", methods=["GET"])
+@require_auth
 def get_inventory_stats():
     """
-    Get inventory statistics for dashboard.
+    Get inventory statistics for dashboard for the authenticated user.
     
     Returns:
         JSON: Inventory statistics including total products, total quantity, etc.
     """
     try:
+        # Get user_id from authentication
+        user_id = getattr(request, 'user', {}).get('user_id')
+        
         db = get_db()
-        inventory = db.get_inventory()
+        inventory = db.get_inventory(user_id)
         
         # Serialize the inventory to handle datetime objects
         serialized_inventory = serialize_datetime(inventory)

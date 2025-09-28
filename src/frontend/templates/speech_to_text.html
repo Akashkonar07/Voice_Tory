@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text - Voice Tory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .speech-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 45px;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .title {
+            color: #333;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 35px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .status {
+            padding: 18px 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status.ready {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+        }
+
+        .status.listening {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            color: #ef6c00;
+            border: 2px solid #ff9800;
+        }
+
+        .status.processing {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #1565c0;
+            border: 2px solid #2196f3;
+        }
+
+        .status.error {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #c62828;
+            border: 2px solid #f44336;
+        }
+
+        .status.success {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .text-output {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            min-height: 150px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: left;
+            color: #333;
+            position: relative;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .text-output.empty {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-upload {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .file-upload h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .guidance-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .guidance-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .guidance-list {
+            list-style: none;
+            text-align: left;
+        }
+
+        .guidance-list li {
+            margin: 10px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        .guidance-list li:last-child {
+            border-bottom: none;
+        }
+
+        .guidance-list li strong {
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .speech-container {
+                padding: 25px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="navbar-brand">
+            <span>🎤</span>
+            <span>Voice Tory</span>
+        </a>
+        
+        <div class="navbar-nav">
+            <a href="#" onclick="navigateWithAuth('/dashboard')" class="nav-link">Dashboard</a>
+            <a href="#" class="nav-link active">Speech to Text</a>
+            <a href="#" onclick="navigateWithAuth('/inventory')" class="nav-link">Inventory</a>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">User</span>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="guidance-section">
+            <h3>🎯 Voice Command Guide</h3>
+            <ul class="guidance-list">
+                <li><strong>Inventory Commands:</strong> "Add 10 units of Product X", "Update Product Y quantity to 5", "Show all products"</li>
+                <li><strong>Search Commands:</strong> "Find products with low stock", "Show me electronics category", "Search for iPhone"</li>
+                <li><strong>Report Commands:</strong> "Generate inventory report", "Show total value", "Display sales summary"</li>
+                <li><strong>General Commands:</strong> "Help", "Clear", "Start over"</li>
+            </ul>
+        </div>
+
+        <div class="speech-container">
+            <h1 class="title">🎤 Speech to Text</h1>
+            <p class="subtitle">Convert your voice commands into text and execute inventory operations</p>
+            
+            <div id="status" class="status ready">Ready to listen</div>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn btn-primary">Start Recording</button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>Stop Recording</button>
+                <button id="clearBtn" class="btn btn-success">Clear Text</button>
+            </div>
+            
+            <div id="textOutput" class="text-output empty">Click "Start Recording" and speak into your microphone...</div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing your speech...</p>
+            </div>
+        </div>
+
+        <div class="file-upload">
+            <h3>📁 Upload Audio File</h3>
+            <p style="margin-bottom: 20px; color: #666;">Upload an audio file for speech-to-text conversion</p>
+            <input type="file" id="fileInput" class="file-input" accept="audio/*">
+            <label for="fileInput" class="file-label">Choose Audio File</label>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication and load user data
+        window.addEventListener('load', function() {
+            const sessionToken = localStorage.getItem('session_token');
+            const userName = localStorage.getItem('username');
+            const fullName = localStorage.getItem('full_name');
+            
+            if (!sessionToken) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if session token is in URL (for direct access)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlSessionToken = urlParams.get('session_token');
+            if (urlSessionToken && urlSessionToken !== sessionToken) {
+                localStorage.setItem('session_token', urlSessionToken);
+            }
+            
+            // Update user info
+            document.getElementById('userName').textContent = fullName || userName || 'User';
+            
+            // Update avatar
+            const avatar = document.getElementById('userAvatar');
+            const displayName = fullName || userName || 'User';
+            avatar.textContent = displayName.charAt(0).toUpperCase();
+        });
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new SpeechToTextApp();
+            
+            // Initialize text output as empty
+            const textOutput = document.getElementById('textOutput');
+            if (textOutput && textOutput.textContent === 'Click "Start Recording" and speak into your microphone...') {
+                textOutput.classList.add('empty');
+            }
+        });
+
+        class SpeechToTextApp {
+            constructor() {
+                // Get DOM elements with error handling
+                this.startBtn = document.getElementById('startBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.status = document.getElementById('status');
+                this.textOutput = document.getElementById('textOutput');
+                this.fileInput = document.getElementById('fileInput');
+                this.loading = document.getElementById('loading');
+                this.isProcessing = false;
+                
+                // Check if all required elements exist
+                if (!this.startBtn || !this.stopBtn || !this.clearBtn || !this.status || !this.textOutput) {
+                    console.error('Required DOM elements not found');
+                    this.showError('Application initialization failed. Please refresh the page.');
+                    return;
+                }
+                
+                // Check browser compatibility
+                this.checkBrowserCompatibility();
+                
+                this.initEventListeners();
+            }
+            
+            checkBrowserCompatibility() {
+                // Check if browser supports speech recognition
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    this.showError('Speech recognition not supported in this browser. Please use Chrome, Edge, or Safari.');
+                    this.startBtn.disabled = true;
+                    return false;
+                }
+                
+                // Check if browser supports File API
+                if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+                    console.warn('File API not fully supported in this browser');
+                    if (this.fileInput) {
+                        this.fileInput.disabled = true;
+                    }
+                }
+                
+                // Check if browser supports fetch API
+                if (!window.fetch) {
+                    this.showError('Your browser is too old. Please update to a modern browser.');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            showError(message) {
+                if (this.status) {
+                    this.status.textContent = message;
+                    this.status.className = 'status error';
+                }
+                console.error(message);
+            }
+
+            initEventListeners() {
+                if (!this.startBtn || !this.stopBtn || !this.clearBtn || !this.fileInput) {
+                    console.error('Required buttons not found');
+                    return;
+                }
+                
+                try {
+                    this.startBtn.addEventListener('click', () => this.startSpeechToText());
+                    this.stopBtn.addEventListener('click', () => this.stopRecording());
+                    this.clearBtn.addEventListener('click', () => this.clearText());
+                    this.fileInput.addEventListener('change', (e) => this.handleFileUpload(e));
+                } catch (error) {
+                    console.error('Error setting up event listeners:', error);
+                    this.showError('Error setting up event listeners. Please refresh the page.');
+                }
+            }
+
+            updateStatus(message, type = 'ready', duration = 0) {
+                if (!this.status) {
+                    console.error('Status element not found');
+                    return;
+                }
+                try {
+                    this.status.textContent = message;
+                    this.status.className = `status ${type}`;
+                    
+                    // Auto-clear status after duration if specified
+                    if (duration > 0) {
+                        setTimeout(() => {
+                            if (this.status && this.status.textContent === message) {
+                                this.updateStatus('🎤 Ready to listen - Click "Start Recording" and allow microphone access when prompted', 'ready');
+                            }
+                        }, duration);
+                    }
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                }
+            }
+            
+            getInventoryUpdateMessage(result) {
+                if (!result || !result.success) {
+                    return null;
+                }
+                
+                const command = result.command || '';
+                const product = result.product_name || '';
+                const quantity = result.quantity || 0;
+                
+                switch (command) {
+                    case 'add':
+                        return `📦 Added ${quantity} ${product}(s) to inventory`;
+                    case 'sell':
+                        return `💰 Sold ${quantity} ${product}(s) from inventory`;
+                    case 'delete':
+                        return `🗑️ Removed ${product} from inventory`;
+                    default:
+                        return `✅ Inventory updated successfully`;
+                }
+            }
+
+            updateButtons(recording) {
+                if (!this.startBtn || !this.stopBtn) {
+                    console.error('Button elements not found');
+                    return;
+                }
+                try {
+                    this.startBtn.disabled = recording;
+                    this.stopBtn.disabled = !recording;
+                } catch (error) {
+                    console.error('Error updating buttons:', error);
+                }
+            }
+
+            showLoading(show) {
+                if (!this.loading || !this.startBtn) {
+                    console.error('Loading or start button elements not found');
+                    return;
+                }
+                
+                try {
+                    if (this.loading) {
+                        this.loading.style.display = show ? 'block' : 'none';
+                    }
+                    
+                    // Disable/enable buttons during loading
+                    this.startBtn.disabled = show;
+                    if (this.stopBtn) {
+                        this.stopBtn.disabled = show;
+                    }
+                    if (this.clearBtn) {
+                        this.clearBtn.disabled = show;
+                    }
+                    if (this.fileInput) {
+                        this.fileInput.disabled = show;
+                    }
+                    
+                    // Add visual feedback to the main container
+                    const container = document.querySelector('.speech-container');
+                    if (container) {
+                        if (show) {
+                            container.style.opacity = '0.7';
+                            container.style.pointerEvents = 'none';
+                        } else {
+                            container.style.opacity = '1';
+                            container.style.pointerEvents = 'auto';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error updating loading state:', error);
+                }
+            }
+
+            async startSpeechToText() {
+                if (this.isProcessing) return;
+                
+                // Check if browser supports speech recognition
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    this.updateStatus('Speech recognition not supported in this browser. Please use Chrome or Edge.', 'error');
+                    return;
+                }
+                
+                this.isProcessing = true;
+                this.updateStatus('Click "Allow" when prompted for microphone permission...', 'listening');
+                this.showLoading(true);
+                
+                // Initialize speech recognition
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                // Configure recognition for better sensitivity
+                recognition.continuous = false;
+                recognition.interimResults = true; // Show interim results for better feedback
+                recognition.lang = 'en-US';
+                recognition.maxAlternatives = 1;
+                
+                // Increase timeout for better speech detection
+                if (recognition.timeout) {
+                    recognition.timeout = 10000; // 10 seconds timeout
+                }
+                
+                recognition.onstart = () => {
+                    this.updateStatus('Listening... Speak now', 'listening');
+                    this.updateButtons(true);
+                };
+                
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    // Show interim results for better user feedback
+                    if (interimTranscript) {
+                        if (this.textOutput.classList.contains('empty')) {
+                            this.textOutput.textContent = '';
+                            this.textOutput.classList.remove('empty');
+                        }
+                        this.textOutput.textContent = interimTranscript;
+                        this.updateStatus('Listening... ' + interimTranscript, 'listening');
+                    }
+                    
+                    // Process final results
+                    if (finalTranscript) {
+                        if (this.textOutput.classList.contains('empty')) {
+                            this.textOutput.textContent = '';
+                            this.textOutput.classList.remove('empty');
+                        }
+                        this.textOutput.textContent = finalTranscript;
+                        this.updateStatus('Speech recognized successfully!', 'success');
+                        
+                        // Send the recognized text to the server for processing/storage
+                        this.sendTextToServer(finalTranscript);
+                    }
+                };
+                
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    let errorMessage = 'Speech recognition failed. ';
+                    let shouldRetry = false;
+                    
+                    switch(event.error) {
+                        case 'no-speech':
+                            errorMessage += 'No speech was detected. Please speak clearly and try again.';
+                            shouldRetry = true;
+                            break;
+                        case 'audio-capture':
+                            errorMessage += 'Microphone access denied or no microphone found. Please check your microphone settings.';
+                            break;
+                        case 'not-allowed':
+                            errorMessage += 'Microphone permission denied. Please allow microphone access and try again.';
+                            break;
+                        case 'network':
+                            errorMessage += 'Network error occurred. Please check your internet connection.';
+                            break;
+                        case 'service-not-allowed':
+                            errorMessage += 'Speech recognition service not available. Please try again later.';
+                            break;
+                        default:
+                            errorMessage += 'Please try again.';
+                    }
+                    
+                    this.updateStatus(errorMessage, 'error');
+                    this.updateButtons(false);
+                    
+                    // Auto-retry for no-speech error after a short delay
+                    if (shouldRetry) {
+                        setTimeout(() => {
+                            if (!this.isProcessing) {
+                                this.updateStatus('Retrying... Speak clearly when prompted', 'listening');
+                                setTimeout(() => this.startSpeechToText(), 1000);
+                            }
+                        }, 2000);
+                    }
+                };
+                
+                recognition.onend = () => {
+                    this.isProcessing = false;
+                    this.showLoading(false);
+                    this.updateButtons(false);
+                    
+                    // Reset status after 3 seconds
+                    setTimeout(() => {
+                        this.updateStatus('🎤 Ready to listen - Click "Start Recording" and allow microphone access when prompted', 'ready');
+                    }, 3000);
+                };
+                
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.error('Error starting recognition:', error);
+                    this.updateStatus('Error starting speech recognition. Please try again.', 'error');
+                    this.isProcessing = false;
+                    this.showLoading(false);
+                    this.updateButtons(false);
+                }
+            }
+            
+            stopRecording() {
+                if (this.isProcessing) {
+                    // The recognition will stop automatically when it detects speech end
+                    this.updateStatus('Stopping...', 'processing');
+                }
+            }
+            
+            async sendTextToServer(text) {
+                const sessionToken = localStorage.getItem('session_token');
+                
+                // Validate session token
+                if (!sessionToken) {
+                    this.showError('Session expired. Please log in again.');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    // Send to text logging endpoint
+                    const response = await fetch('/api/save-text', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${sessionToken}`
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            timestamp: new Date().toISOString(),
+                            source: 'microphone',
+                            session_token: sessionToken
+                        })
+                    });
+                    
+                    // Handle authentication errors
+                    if (response.status === 401) {
+                        this.showError('Session expired. Please log in again.');
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 2000);
+                        return;
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        console.log('Text saved successfully');
+                        
+                        // Check if inventory was processed
+                        if (data.inventory_processed) {
+                            if (data.inventory_result && data.inventory_result.success) {
+                                this.updateStatus('✅ Text saved and inventory updated successfully!', 'success');
+                                
+                                // Show inventory update details
+                                const inventoryDetails = this.getInventoryUpdateMessage(data.inventory_result);
+                                if (inventoryDetails) {
+                                    this.updateStatus(inventoryDetails, 'success', 5000);
+                                }
+                            } else {
+                                this.updateStatus('⚠️ Text saved but inventory update failed: ' + (data.inventory_result?.error || 'Unknown error'), 'warning');
+                            }
+                        } else {
+                            this.updateStatus('Text processed and saved successfully!', 'success');
+                        }
+                        
+                        // Add success animation
+                        if (this.textOutput) {
+                            this.textOutput.style.borderColor = '#4caf50';
+                            setTimeout(() => {
+                                if (this.textOutput) {
+                                    this.textOutput.style.borderColor = '#e0e0e0';
+                                }
+                            }, 2000);
+                        }
+                    } else {
+                        console.error('Failed to save text');
+                        this.showError('Failed to save text to server: ' + (data.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error sending text to server:', error);
+                    
+                    if (error.message.includes('Failed to fetch')) {
+                        this.showError('Network error. Please check your internet connection.');
+                    } else {
+                        this.showError('Error sending text to server: ' + error.message);
+                    }
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+            
+            async handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // Validate session token
+                const sessionToken = localStorage.getItem('session_token');
+                if (!sessionToken) {
+                    this.showError('Session expired. Please log in again.');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                    return;
+                }
+                
+                if (!file.type.startsWith('audio/')) {
+                    this.showError('Please select an audio file');
+                    return;
+                }
+                
+                // Check file size (max 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    this.showError('File size too large. Please select a file smaller than 10MB.');
+                    return;
+                }
+                
+                this.updateStatus('Processing audio file...', 'processing');
+                this.showLoading(true);
+                
+                const formData = new FormData();
+                formData.append('audio_file', file);
+                formData.append('session_token', sessionToken);
+                
+                try {
+                    const response = await fetch('/api/speech-to-text', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${sessionToken}`
+                        },
+                        body: formData
+                    });
+                    
+                    // Handle authentication errors
+                    if (response.status === 401) {
+                        this.showError('Session expired. Please log in again.');
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 2000);
+                        return;
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        if (this.textOutput.classList.contains('empty')) {
+                            this.textOutput.textContent = '';
+                            this.textOutput.classList.remove('empty');
+                        }
+                        this.textOutput.textContent += data.text;
+                        this.updateStatus('Audio file processed successfully', 'success');
+                        this.sendTextToServer(data.text);
+                    } else {
+                        this.showError('Error processing audio file: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error uploading audio file:', error);
+                    
+                    if (error.message.includes('Failed to fetch')) {
+                        this.showError('Network error. Please check your internet connection.');
+                    } else {
+                        this.showError('Error processing audio file: ' + error.message);
+                    }
+                } finally {
+                    this.showLoading(false);
+                    // Reset file input
+                    if (this.fileInput) {
+                        this.fileInput.value = '';
+                    }
+                }
+            }
+            
+            clearText() {
+                if (!this.textOutput || !this.status) {
+                    console.error('Text output or status elements not found');
+                    return;
+                }
+                
+                try {
+                    this.textOutput.textContent = 'Click "Start Recording" and speak into your microphone...';
+                    this.textOutput.classList.add('empty');
+                    this.updateStatus('Text cleared', 'ready');
+                    
+                    // Add visual feedback
+                    this.textOutput.style.transition = 'all 0.3s ease';
+                    this.textOutput.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        if (this.textOutput) {
+                            this.textOutput.style.transform = 'scale(1)';
+                        }
+                    }, 150);
+                } catch (error) {
+                    console.error('Error clearing text:', error);
+                    this.showError('Error clearing text');
+                }
+            }
+        }
+        
+        // Make app globally accessible
+        let app;
+        
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            const sessionToken = localStorage.getItem('session_token');
+            
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_token: sessionToken
+                    })
+                });
+            } catch (error) {
+                console.error('Error during logout:', error);
+            } finally {
+                // Clear local storage
+                localStorage.removeItem('session_token');
+                localStorage.removeItem('username');
+                localStorage.removeItem('full_name');
+                
+                // Redirect to login
+                window.location.href = '/login';
+            }
+        });
+        
+        // Function to navigate with authentication
+        function navigateWithAuth(url) {
+            const sessionToken = localStorage.getItem('session_token');
+            if (sessionToken) {
+                window.location.href = `${url}?session_token=${encodeURIComponent(sessionToken)}`;
+            } else {
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html>
