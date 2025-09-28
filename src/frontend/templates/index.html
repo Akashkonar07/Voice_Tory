@@ -19,41 +19,84 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
-
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 45px;
+            max-width: 650px;
             width: 100%;
             text-align: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .title {
             color: #333;
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.1); }
         }
 
         .subtitle {
             color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
+            font-size: 1.2rem;
+            margin-bottom: 35px;
+            font-weight: 400;
+            line-height: 1.5;
         }
 
         .status {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            padding: 18px 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .status:hover::before {
+            left: 100%;
         }
 
         .status.ready {
@@ -102,23 +145,46 @@
         }
 
         .btn {
-            padding: 15px 30px;
+            padding: 16px 32px;
             border: none;
             border-radius: 50px;
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             text-decoration: none;
             color: white;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px) scale(0.98);
         }
 
         .btn:disabled {
@@ -128,15 +194,18 @@
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #4caf50, #45a049);
+            background: linear-gradient(135deg, #4caf50, #45a049, #66bb6a);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
 
         .btn-secondary {
-            background: linear-gradient(45deg, #f44336, #d32f2f);
+            background: linear-gradient(135deg, #f44336, #d32f2f, #ef5350);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
         }
 
         .btn-info {
-            background: linear-gradient(45deg, #2196f3, #1976d2);
+            background: linear-gradient(135deg, #2196f3, #1976d2, #42a5f5);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
         }
 
         .result-section {
@@ -152,20 +221,25 @@
 
         .result-text {
             width: 100%;
-            min-height: 150px;
-            padding: 20px;
+            min-height: 180px;
+            padding: 22px;
             border: 2px solid #e0e0e0;
-            border-radius: 15px;
+            border-radius: 18px;
             font-size: 1.1rem;
             resize: vertical;
             font-family: inherit;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
         }
-
+        
         .result-text:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.95);
         }
+
 
         .file-upload {
             margin-bottom: 20px;
@@ -177,18 +251,16 @@
 
         .file-label {
             display: inline-block;
-            padding: 12px 25px;
-            background: linear-gradient(45deg, #ff9800, #f57c00);
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #ff9800, #f57c00, #ffb74d);
             color: white;
-            border-radius: 25px;
+            border-radius: 28px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .file-label:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .footer {
@@ -198,15 +270,440 @@
         }
         
         .inventory-section {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
+        }
+        
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .inventory-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .inventory-actions .btn {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .inventory-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .search-container {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .filter-container {
+            min-width: 150px;
+        }
+        
+        .filter-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .item-count {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .chart-btn {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            background: transparent;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .chart-btn.active,
+        .chart-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .inventory-summary {
+            margin-top: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .summary-value {
+            font-weight: 700;
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .inventory-item.loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .product-category {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .product-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+        
+        .product-quantity {
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .product-quantity.low-stock {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .product-quantity.high-stock {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .product-quantity.normal-stock {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .product-price {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 0.95rem;
+        }
+        
+        /* Loading animations */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Enhanced stat item animations */
+        .stat-item {
+            animation: slideInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .stat-item:nth-child(1) { animation-delay: 0.1s; }
+        .stat-item:nth-child(2) { animation-delay: 0.2s; }
+        .stat-item:nth-child(3) { animation-delay: 0.3s; }
+        .stat-item:nth-child(4) { animation-delay: 0.4s; }
+        
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Inventory item animations */
+        .inventory-item {
+            animation: fadeInScale 0.4s ease-out forwards;
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        
+        @keyframes fadeInScale {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Toast notification styles */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            max-width: 300px;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.error {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+        
+        .toast.info {
+            background: linear-gradient(135deg, #2196f3, #1976d2);
+        }
+        
+        /* Enhanced chart container */
+        .chart-wrapper {
+            position: relative;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Empty state styling */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-state-text {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state-subtext {
+            font-size: 0.9rem;
+            color: #999;
+        }
+        
+        /* Progress bar for loading */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+        
+        /* Keyboard shortcuts help */
+        .shortcuts-help {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            z-index: 100;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .shortcuts-help:hover {
+            opacity: 1;
+        }
+        
+        .shortcut-key {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 0 2px;
+        }
+        
+        /* Enhanced inventory item hover effects */
+        .inventory-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .inventory-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        /* Highlight animation for search results */
+        .inventory-item.highlight {
+            animation: highlightPulse 1s ease-in-out;
+        }
+        
+        @keyframes highlightPulse {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(102, 126, 234, 0.2); }
         }
         
         .guidance-section {
-            background: #e3f2fd;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 4px solid #2196f3;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid #2196f3;
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .guidance-section::before {
+            content: '💡';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            opacity: 0.3;
         }
         
         .guidance-section h3 {
@@ -233,10 +730,12 @@
         }
         
         .inventory-dashboard {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 15px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .inventory-stats {
@@ -247,11 +746,29 @@
         }
         
         .stat-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, white, #f8f9fa);
+            padding: 20px;
+            border-radius: 16px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         
         .stat-label {
@@ -280,14 +797,21 @@
         }
         
         .inventory-item {
-            background: white;
-            padding: 12px 15px;
-            margin-bottom: 8px;
-            border-radius: 8px;
+            background: linear-gradient(135deg, white, #f8f9fa);
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .inventory-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
         }
         
         .product-name {
@@ -296,20 +820,22 @@
         }
         
         .product-quantity {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 0.9rem;
-            font-weight: 500;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
         
         .inventory-chart-container {
             margin-top: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, white, #f8f9fa);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .inventory-chart-container h3 {
@@ -320,7 +846,7 @@
         
         #inventoryChart {
             max-width: 100%;
-            height: auto;
+            height: 150px !important;
         }
 
         .loading {
@@ -334,13 +860,14 @@
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
+            border: 4px solid rgba(102, 126, 234, 0.1);
             border-top: 4px solid #667eea;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
         }
 
         @keyframes spin {
@@ -350,21 +877,55 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                padding: 25px;
+                margin: 10px;
             }
             
             .title {
-                font-size: 2rem;
+                font-size: 2.2rem;
+                margin-bottom: 12px;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+                margin-bottom: 25px;
             }
             
             .controls {
                 flex-direction: column;
                 align-items: center;
+                gap: 12px;
             }
             
             .btn {
                 width: 100%;
-                max-width: 300px;
+                max-width: 280px;
+                padding: 14px 24px;
+                font-size: 1rem;
+            }
+            
+            .status {
+                padding: 15px 18px;
+                margin-bottom: 20px;
+            }
+            
+            .result-text {
+                min-height: 150px;
+                padding: 18px;
+            }
+            
+ .inventory-stats {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 12px;
+            }
+            
+            .stat-item {
+                padding: 15px;
+            }
+            
+            .guidance-section {
+                padding: 20px;
+                margin: 20px 0;
             }
         }
     </style>
@@ -475,33 +1036,103 @@
         </div>
         
         <div class="inventory-section">
-            <div class="result-label">Inventory Dashboard</div>
+            <div class="inventory-header">
+                <div class="result-label">Inventory Dashboard</div>
+                <div class="inventory-actions">
+                    <button class="btn btn-info" onclick="safeLoadInventory()" title="Refresh Inventory">
+                        🔄 Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="safeExportInventory()" title="Export Data">
+                        📊 Export
+                    </button>
+                </div>
+            </div>
+            
             <div class="inventory-dashboard">
+                <div class="progress-bar" id="inventory-progress" style="display: none;">
+                    <div class="progress-fill" id="inventory-progress-fill"></div>
+                </div>
                 <div class="inventory-stats" id="inventory-stats">
                     <div class="stat-item">
-                        <span class="stat-label">Total Products:</span>
+                        <div class="stat-icon">📦</div>
+                        <span class="stat-label">Total Products</span>
                         <span class="stat-value" id="total-products">0</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Total Quantity:</span>
+                        <div class="stat-icon">📊</div>
+                        <span class="stat-label">Total Quantity</span>
                         <span class="stat-value" id="total-quantity">0</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Total Sales:</span>
-                        <span class="stat-value" id="total-sales">0</span>
+                        <div class="stat-icon">⚠️</div>
+                        <span class="stat-label">Low Stock</span>
+                        <span class="stat-value" id="low-stock">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">💰</div>
+                        <span class="stat-label">Total Value</span>
+                        <span class="stat-value" id="total-value">$0</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-controls">
+                    <div class="search-container">
+                        <input type="text" id="inventory-search" placeholder="🔍 Search products..." class="search-input">
+                    </div>
+                    <div class="filter-container">
+                        <select id="inventory-filter" class="filter-select">
+                            <option value="all">All Products</option>
+                            <option value="low-stock">Low Stock</option>
+                            <option value="high-stock">High Stock</option>
+                        </select>
                     </div>
                 </div>
                 
                 <div class="inventory-list-container">
-                    <h3>Current Inventory</h3>
+                    <div class="list-header">
+                        <h3>Current Inventory</h3>
+                        <span class="item-count" id="item-count">0 items</span>
+                    </div>
                     <ul id="inventory-list" class="inventory-list">
-                        <li class="inventory-item">Loading inventory...</li>
+                        <li class="inventory-item loading">Loading inventory...</li>
                     </ul>
                 </div>
                 
                 <div class="inventory-chart-container">
-                    <h3>Inventory Overview</h3>
-                    <canvas id="inventoryChart" width="400" height="200"></canvas>
+                    <div class="chart-header">
+                        <h3>Inventory Overview</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn" onclick="safeSwitchChart('bar')" id="bar-chart-btn">📊 Bar</button>
+                            <button class="chart-btn" onclick="safeSwitchChart('pie')" id="pie-chart-btn">🥧 Pie</button>
+                            <button class="chart-btn" onclick="safeSwitchChart('line')" id="line-chart-btn">📈 Line</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="inventoryChart" width="400" height="150"></canvas>
+                        <div class="empty-state" id="chart-empty-state" style="display: none;">
+                            <div class="empty-state-icon">📊</div>
+                            <div class="empty-state-text">No inventory data available</div>
+                            <div class="empty-state-subtext">Add products to see the chart visualization</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="inventory-summary">
+                    <h3>Quick Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-label">Last Updated:</span>
+                            <span class="summary-value" id="last-updated">Never</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Most Popular:</span>
+                            <span class="summary-value" id="most-popular">N/A</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Needs Restock:</span>
+                            <span class="summary-value" id="needs-restock">None</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -757,72 +1388,14 @@
                 }
             }
             
-            async loadInventoryDashboard() {
-                try {
-                    // Load inventory data
-                    const inventoryResponse = await fetch('/api/inventory/inventory');
-                    const inventoryResult = await inventoryResponse.json();
-                    
-                    // Load stats
-                    const statsResponse = await fetch('/api/inventory/stats');
-                    const statsResult = await statsResponse.json();
-                    
-                    if (inventoryResult.success && statsResult.success) {
-                        this.updateInventoryDisplay(inventoryResult.products, statsResult.stats);
-                    }
-                    
-                } catch (error) {
-                    console.error('Error loading inventory dashboard:', error);
-                }
-            }
-            
-            updateInventoryDisplay(products, stats) {
-                // Update inventory list
-                const inventoryList = document.getElementById('inventory-list');
-                if (inventoryList) {
-                    inventoryList.innerHTML = '';
-                    
-                    if (products.length === 0) {
-                        inventoryList.innerHTML = '<li class="inventory-item">No products in inventory</li>';
-                    } else {
-                        products.forEach(product => {
-                            const li = document.createElement('li');
-                            li.className = 'inventory-item';
-                            li.innerHTML = `
-                                <span class="product-name">${product.name}</span>
-                                <span class="product-quantity">${product.quantity}</span>
-                            `;
-                            inventoryList.appendChild(li);
-                        });
-                    }
-                }
-                
-                // Update stats
-                const statsContainer = document.getElementById('inventory-stats');
-                if (statsContainer) {
-                    statsContainer.innerHTML = `
-                        <div class="stat-item">
-                            <span class="stat-label">Total Products:</span>
-                            <span class="stat-value">${stats.total_products}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Total Quantity:</span>
-                            <span class="stat-value">${stats.total_quantity}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Total Sales:</span>
-                            <span class="stat-value">${stats.total_sales}</span>
-                        </div>
-                    `;
-                }
-                
-                // Update chart
-                this.updateInventoryChart(products);
-            }
-            
+            // Update chart
             updateInventoryChart(products) {
                 const ctx = document.getElementById('inventoryChart');
+                const emptyState = document.getElementById('chart-empty-state');
                 if (!ctx) return;
+                
+                // Store products for export functionality
+                this.currentProducts = products;
                 
                 // Destroy existing chart if it exists
                 if (this.inventoryChart) {
@@ -831,49 +1404,72 @@
                 
                 if (products.length === 0) {
                     // Show empty state
-                    ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+                    ctx.style.display = 'none';
+                    emptyState.style.display = 'block';
                     return;
+                } else {
+                    // Show chart
+                    ctx.style.display = 'block';
+                    emptyState.style.display = 'none';
                 }
                 
                 // Prepare data for chart
                 const labels = products.map(p => p.name);
                 const data = products.map(p => p.quantity);
+                const colors = products.map((_, index) => {
+                    const hue = (index * 137.508) % 360; // Golden angle for better color distribution
+                    return `hsla(${hue}, 70%, 60%, 0.8)`;
+                });
+                
+                // Get current chart type or default to 'bar'
+                const chartType = this.currentChartType || 'bar';
                 
                 // Create new chart
                 this.inventoryChart = new Chart(ctx, {
-                    type: 'bar',
+                    type: chartType,
                     data: {
                         labels: labels,
                         datasets: [{
                             label: 'Quantity',
                             data: data,
-                            backgroundColor: 'rgba(102, 126, 234, 0.6)',
-                            borderColor: 'rgba(102, 126, 234, 1)',
-                            borderWidth: 1
+                            backgroundColor: chartType === 'line' ? 'rgba(102, 126, 234, 0.2)' : colors,
+                            borderColor: chartType === 'line' ? 'rgba(102, 126, 234, 1)' : colors.map(c => c.replace('0.8', '1')),
+                            borderWidth: 2,
+                            fill: chartType === 'line',
+                            tension: 0.4
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
+                        scales: chartType !== 'pie' ? {
                             y: {
                                 beginAtZero: true,
                                 ticks: {
                                     stepSize: 1
                                 }
                             }
-                        },
+                        } : {},
                         plugins: {
                             legend: {
-                                display: false
+                                display: chartType === 'pie',
+                                position: 'bottom'
                             },
                             title: {
                                 display: true,
-                                text: 'Product Quantities'
+                                text: 'Product Quantities',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
                             }
                         }
                     }
                 });
+                
+                // Set active chart button
+                document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`${chartType}-chart-btn`)?.classList.add('active');
             }
 
             async handleFileUpload(event) {
@@ -936,14 +1532,361 @@
                 this.resultText.value = '';
                 this.updateStatus('Text cleared. Ready to listen.', 'ready');
             }
+            
+            // Enhanced inventory functionality
+            async loadInventoryDashboard() {
+                try {
+                    this.showProgress(true);
+                    this.updateStatus('Loading inventory data...', 'processing');
+                    
+                    // Simulate progress for better UX
+                    this.animateProgress(0, 100, 1500);
+                    
+                    // Load inventory data
+                    const inventoryResponse = await fetch('/api/inventory/inventory');
+                    
+                    if (!inventoryResponse.ok) {
+                        throw new Error(`HTTP ${inventoryResponse.status}: ${inventoryResponse.statusText}`);
+                    }
+                    
+                    const inventoryData = await inventoryResponse.json();
+                    
+                    // Load stats data
+                    const statsResponse = await fetch('/api/inventory/stats');
+                    
+                    if (!statsResponse.ok) {
+                        throw new Error(`HTTP ${statsResponse.status}: ${statsResponse.statusText}`);
+                    }
+                    
+                    const statsData = await statsResponse.json();
+                    
+                    if (inventoryData.success && statsData.success) {
+                        this.updateInventoryDisplay(inventoryData.products || []);
+                        this.updateInventorySummary(statsData.summary || {});
+                    } else {
+                        throw new Error('Failed to load inventory or stats data');
+                    }
+                    
+                    this.showProgress(false);
+                    this.showToast('Inventory loaded successfully!', 'success');
+                    this.updateStatus('🎤 Ready to listen - Click "Start Listening" and allow microphone access when prompted', 'ready');
+                } catch (error) {
+                    console.error('Error loading inventory:', error);
+                    this.showProgress(false);
+                    this.showToast('Error loading inventory data', 'error');
+                    this.updateStatus('Error loading inventory data', 'error');
+                }
+            }
+            
+            showProgress(show) {
+                const progressBar = document.getElementById('inventory-progress');
+                const progressFill = document.getElementById('inventory-progress-fill');
+                
+                if (show) {
+                    progressBar.style.display = 'block';
+                    progressFill.style.width = '0%';
+                } else {
+                    setTimeout(() => {
+                        progressBar.style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }, 300);
+                }
+            }
+            
+            animateProgress(start, end, duration) {
+                const progressFill = document.getElementById('inventory-progress-fill');
+                const startTime = Date.now();
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const current = start + (end - start) * progress;
+                    
+                    progressFill.style.width = `${current}%`;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+            
+            showToast(message, type = 'success') {
+                // Remove existing toast if any
+                const existingToast = document.querySelector('.toast');
+                if (existingToast) {
+                    existingToast.remove();
+                }
+                
+                // Create new toast
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                document.body.appendChild(toast);
+                
+                // Trigger animation
+                setTimeout(() => toast.classList.add('show'), 10);
+                
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+            
+            updateInventoryDisplay(products) {
+                // Update stats
+                const totalProducts = products.length;
+                const totalQuantity = products.reduce((sum, p) => sum + p.quantity, 0);
+                const lowStockItems = products.filter(p => p.quantity < 10).length;
+                const totalValue = products.reduce((sum, p) => sum + (p.quantity * (p.price || 0)), 0);
+                
+                document.getElementById('total-products').textContent = totalProducts;
+                document.getElementById('total-quantity').textContent = totalQuantity;
+                document.getElementById('low-stock').textContent = lowStockItems;
+                document.getElementById('total-value').textContent = `$${totalValue.toFixed(2)}`;
+                
+                // Update inventory list
+                this.updateInventoryList(products);
+                
+                // Update chart
+                this.updateInventoryChart(products);
+            }
+            
+            updateInventoryList(products) {
+                const listContainer = document.getElementById('inventory-list');
+                const itemCount = document.getElementById('item-count');
+                
+                if (!listContainer) return;
+                
+                // Apply search and filter
+                const searchTerm = document.getElementById('inventory-search')?.value.toLowerCase() || '';
+                const filterValue = document.getElementById('inventory-filter')?.value || 'all';
+                
+                let filteredProducts = products;
+                
+                // Apply search filter
+                if (searchTerm) {
+                    filteredProducts = filteredProducts.filter(p => 
+                        p.name.toLowerCase().includes(searchTerm) || 
+                        p.category?.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                // Apply stock filter
+                if (filterValue === 'low-stock') {
+                    filteredProducts = filteredProducts.filter(p => p.quantity < 10);
+                } else if (filterValue === 'high-stock') {
+                    filteredProducts = filteredProducts.filter(p => p.quantity >= 50);
+                }
+                
+                // Update item count
+                itemCount.textContent = `${filteredProducts.length} items`;
+                
+                // Clear existing items
+                listContainer.innerHTML = '';
+                
+                if (filteredProducts.length === 0) {
+                    listContainer.innerHTML = '<li class="inventory-item loading">No products found</li>';
+                    return;
+                }
+                
+                // Add filtered products to list
+                filteredProducts.forEach(product => {
+                    const li = document.createElement('li');
+                    li.className = 'inventory-item';
+                    
+                    const stockStatus = product.quantity < 10 ? 'low-stock' : 
+                                     product.quantity >= 50 ? 'high-stock' : 'normal-stock';
+                    
+                    li.innerHTML = `
+                        <div class="product-info">
+                            <span class="product-name">${product.name}</span>
+                            <span class="product-category">${product.category || 'Uncategorized'}</span>
+                        </div>
+                        <div class="product-stats">
+                            <span class="product-quantity ${stockStatus}">${product.quantity} units</span>
+                            <span class="product-price">$${(product.price || 0).toFixed(2)}</span>
+                        </div>
+                    `;
+                    
+                    listContainer.appendChild(li);
+                });
+            }
+            
+            updateInventorySummary(summary) {
+                document.getElementById('last-updated').textContent = summary.lastUpdated || new Date().toLocaleString();
+                document.getElementById('most-popular').textContent = summary.mostPopular || 'N/A';
+                document.getElementById('needs-restock').textContent = summary.needsRestock || 'None';
+            }
+            
+            switchChart(type) {
+                // Store the current chart type
+                this.currentChartType = type;
+                
+                // Remove active class from all buttons
+                document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                document.getElementById(`${type}-chart-btn`).classList.add('active');
+                
+                // Recreate chart with new type
+                if (this.currentProducts) {
+                    this.updateInventoryChart(this.currentProducts);
+                }
+            }
+            
+            exportInventory() {
+                try {
+                    const products = this.currentProducts || [];
+                    
+                    if (products.length === 0) {
+                        this.showToast('No inventory data to export', 'error');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    this.showToast('Preparing export...', 'info');
+                    
+                    // Create CSV content with enhanced formatting
+                    const headers = ['Product Name', 'Category', 'Quantity', 'Unit Price', 'Total Value'];
+                    const rows = products.map(p => [
+                        p.name,
+                        p.category || 'Uncategorized',
+                        p.quantity,
+                        `$${(p.price || 0).toFixed(2)}`,
+                        `$${(p.quantity * (p.price || 0)).toFixed(2)}`
+                    ]);
+                    
+                    // Add summary row
+                    const totalQuantity = products.reduce((sum, p) => sum + p.quantity, 0);
+                    const totalValue = products.reduce((sum, p) => sum + (p.quantity * (p.price || 0)), 0);
+                    rows.push(['', 'TOTAL', totalQuantity, '', `$${totalValue.toFixed(2)}`]);
+                    
+                    const csvContent = [headers, ...rows]
+                        .map(row => row.map(cell => `"${cell}"`).join(','))
+                        .join('\n');
+                    
+                    // Create and download file
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `inventory_export_${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    // Show success message with details
+                    this.showToast(`Exported ${products.length} products successfully!`, 'success');
+                    
+                } catch (error) {
+                    console.error('Export error:', error);
+                    this.showToast('Failed to export inventory', 'error');
+                }
+            }
         }
 
+        // Make app globally accessible
+        let app;
+        
+        // Safe wrapper functions for onclick handlers
+        function safeLoadInventory() {
+            if (app && typeof app.loadInventoryDashboard === 'function') {
+                app.loadInventoryDashboard();
+            }
+        }
+        
+        function safeExportInventory() {
+            if (app && typeof app.exportInventory === 'function') {
+                app.exportInventory();
+            }
+        }
+        
+        function safeSwitchChart(type) {
+            if (app && typeof app.switchChart === 'function') {
+                app.switchChart(type);
+            }
+        }
+        
         // Initialize the app when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            const app = new SpeechToTextApp();
+            app = new SpeechToTextApp();
+            
             // Load initial inventory data
             app.loadInventoryDashboard();
+            
+            // Add event listeners for search and filter
+            const searchInput = document.getElementById('inventory-search');
+            const filterSelect = document.getElementById('inventory-filter');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    if (app.currentProducts) {
+                        app.updateInventoryList(app.currentProducts);
+                    }
+                });
+            }
+            
+            if (filterSelect) {
+                filterSelect.addEventListener('change', () => {
+                    if (app.currentProducts) {
+                        app.updateInventoryList(app.currentProducts);
+                    }
+                });
+            }
+        });
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ignore if user is typing in an input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            // Check if app is initialized
+            if (!app) {
+                return;
+            }
+            
+            switch(e.key.toLowerCase()) {
+                case 'r':
+                    e.preventDefault();
+                    app.loadInventoryDashboard();
+                    break;
+                case 'e':
+                    e.preventDefault();
+                    app.exportInventory();
+                    break;
+                case 's':
+                    e.preventDefault();
+                    const searchInput = document.getElementById('inventory-search');
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                    break;
+                case 'f':
+                    e.preventDefault();
+                    const filterSelect = document.getElementById('inventory-filter');
+                    if (filterSelect) {
+                        filterSelect.focus();
+                    }
+                    break;
+            }
         });
     </script>
+    
+    <!-- Keyboard Shortcuts Help -->
+    <div class="shortcuts-help">
+        <div><strong>Shortcuts:</strong></div>
+        <div><span class="shortcut-key">R</span> Refresh</div>
+        <div><span class="shortcut-key">E</span> Export</div>
+        <div><span class="shortcut-key">S</span> Search</div>
+        <div><span class="shortcut-key">F</span> Filter</div>
+    </div>
 </body>
 </html>
