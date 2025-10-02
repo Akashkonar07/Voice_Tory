@@ -53,6 +53,16 @@ class InMemoryCollection:
         """Find all documents."""
         results = list(self.storage.values())
         return type('Cursor', (), (), {'__iter__': lambda self: iter(results)})(results)
+    
+    def delete_one(self, query):
+        """Delete one document matching the query."""
+        if "name" in query:
+            name = query["name"]
+            for doc_id, doc in list(self.storage.items()):
+                if doc.get("name") == name:
+                    del self.storage[doc_id]
+                    return True
+        return False
 
 class InventoryDatabase:
     def __init__(self):
@@ -98,27 +108,70 @@ class InventoryDatabase:
             self.products = InMemoryCollection(self.in_memory_storage)
             self.sales = InMemoryCollection({})
     
-    def add_product(self, name, quantity):
+    def add_product(self, name, quantity, cost_price=None, selling_price=None, total_value=None, profit=None, user_id=None):
         """
         Add products to inventory or update existing product quantity.
+        
+        Args:
+            name: Product name
+            quantity: Product quantity
+            cost_price: Optional cost price
+            selling_price: Optional selling price
+            total_value: Optional total value
+            profit: Optional profit
+            user_id: Optional user ID for user-specific data
         """
         try:
-            existing = self.products.find_one({"name": name})
+            # Build query with user_id if provided
+            query = {"name": name}
+            if user_id is not None:
+                query["user_id"] = user_id
+            
+            existing = self.products.find_one(query)
             
             if existing:
                 # Update existing product
-                self.products.update_one(
-                    {"name": name}, 
-                    {"$inc": {"quantity": quantity}}
-                )
+                update_data = {"$inc": {"quantity": quantity}}
+                
+                # Update financial fields if provided
+                if cost_price is not None:
+                    update_data["$set"] = update_data.get("$set", {})
+                    update_data["$set"]["cost_price"] = cost_price
+                if selling_price is not None:
+                    update_data["$set"] = update_data.get("$set", {})
+                    update_data["$set"]["selling_price"] = selling_price
+                if total_value is not None:
+                    update_data["$set"] = update_data.get("$set", {})
+                    update_data["$set"]["total_value"] = total_value
+                if profit is not None:
+                    update_data["$set"] = update_data.get("$set", {})
+                    update_data["$set"]["profit"] = profit
+                
+                self.products.update_one(query, update_data)
                 action = "updated"
             else:
                 # Insert new product
-                self.products.insert_one({
+                product_data = {
                     "name": name, 
                     "quantity": quantity,
                     "created_at": datetime.now()
-                })
+                }
+                
+                # Add financial fields if provided
+                if cost_price is not None:
+                    product_data["cost_price"] = cost_price
+                if selling_price is not None:
+                    product_data["selling_price"] = selling_price
+                if total_value is not None:
+                    product_data["total_value"] = total_value
+                if profit is not None:
+                    product_data["profit"] = profit
+                
+                # Add user_id if provided
+                if user_id is not None:
+                    product_data["user_id"] = user_id
+                
+                self.products.insert_one(product_data)
                 action = "added"
             
             return {
@@ -134,12 +187,22 @@ class InventoryDatabase:
                 "error": str(e)
             }
     
-    def sell_product(self, name, quantity):
+    def sell_product(self, name, quantity, user_id=None):
         """
         Sell products from inventory (reduce quantity).
+        
+        Args:
+            name: Product name
+            quantity: Quantity to sell
+            user_id: Optional user ID for user-specific data
         """
         try:
-            item = self.products.find_one({"name": name})
+            # Build query with user_id if provided
+            query = {"name": name}
+            if user_id is not None:
+                query["user_id"] = user_id
+            
+            item = self.products.find_one(query)
             
             if not item:
                 return {
@@ -155,7 +218,7 @@ class InventoryDatabase:
             
             # Update product quantity
             self.products.update_one(
-                {"name": name}, 
+                query, 
                 {"$inc": {"quantity": -quantity}}
             )
             
@@ -179,12 +242,22 @@ class InventoryDatabase:
                 "error": str(e)
             }
     
-    def delete_product(self, name, quantity):
+    def delete_product(self, name, quantity, user_id=None):
         """
         Delete products from inventory (reduce quantity).
+        
+        Args:
+            name: Product name
+            quantity: Quantity to delete
+            user_id: Optional user ID for user-specific data
         """
         try:
-            item = self.products.find_one({"name": name})
+            # Build query with user_id if provided
+            query = {"name": name}
+            if user_id is not None:
+                query["user_id"] = user_id
+            
+            item = self.products.find_one(query)
             
             if not item:
                 return {
@@ -200,14 +273,14 @@ class InventoryDatabase:
             
             # Update product quantity
             self.products.update_one(
-                {"name": name}, 
+                query, 
                 {"$inc": {"quantity": -quantity}}
             )
             
             # Remove product if quantity becomes 0
-            updated_item = self.products.find_one({"name": name})
+            updated_item = self.products.find_one(query)
             if updated_item and updated_item["quantity"] == 0:
-                self.products.delete_one({"name": name})
+                self.products.delete_one(query)
             
             return {
                 "success": True,
@@ -222,12 +295,20 @@ class InventoryDatabase:
                 "error": str(e)
             }
     
-    def get_inventory(self):
+    def get_inventory(self, user_id=None):
         """
         Get all products in inventory.
+        
+        Args:
+            user_id: Optional user ID for user-specific data
         """
         try:
-            products = list(self.products.find({}, {"_id": 0}))
+            # Build query with user_id if provided
+            query = {}
+            if user_id is not None:
+                query["user_id"] = user_id
+            
+            products = list(self.products.find(query, {"_id": 0}))
             return {
                 "success": True,
                 "products": products
@@ -260,25 +341,25 @@ class MockDatabase:
         self.client = None
         self.products = None
         
-    def add_product(self, name, quantity):
+    def add_product(self, name, quantity, cost_price=None, selling_price=None, total_value=None, profit=None, user_id=None):
         return {
             "success": False,
             "error": "Database connection failed. Please check your MongoDB configuration."
         }
     
-    def sell_product(self, name, quantity):
+    def sell_product(self, name, quantity, user_id=None):
         return {
             "success": False,
             "error": "Database connection failed. Please check your MongoDB configuration."
         }
     
-    def delete_product(self, name, quantity):
+    def delete_product(self, name, quantity, user_id=None):
         return {
             "success": False,
             "error": "Database connection failed. Please check your MongoDB configuration."
         }
     
-    def get_inventory(self):
+    def get_inventory(self, user_id=None):
         return {
             "success": False,
             "error": "Database connection failed. Please check your MongoDB configuration.",

@@ -829,6 +829,37 @@
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
         
+        .delete-btn {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delete-btn:hover {
+            background: linear-gradient(135deg, #ff3742, #ff2f3a);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+        }
+        
+        .delete-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .delete-icon {
+            width: 16px;
+            height: 16px;
+            stroke-width: 2.5;
+        }
+        
         .inventory-chart-container {
             margin-top: 20px;
             background: linear-gradient(135deg, white, #f8f9fa);
@@ -1045,6 +1076,9 @@
                     <button class="btn btn-primary" onclick="safeExportInventory()" title="Export Data">
                         📊 Export
                     </button>
+                    <button class="btn btn-success" onclick="safeImportInventory()" title="Import Excel Data">
+                        📥 Import
+                    </button>
                 </div>
             </div>
             
@@ -1137,14 +1171,26 @@
             </div>
         </div>
         
-        <div class="file-upload">
-            <input type="file" id="fileInput" class="file-input" accept="audio/*">
-            <label for="fileInput" class="file-label">
-                📁 Upload Audio File
+        <!-- Excel Import Section -->
+        <div class="excel-import-section" style="margin-top: 20px; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2);">
+            <h3 style="color: #333; margin-bottom: 15px; font-size: 1.1rem;">📥 Import Excel Data</h3>
+            <div class="import-instructions" style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; color: #555;">
+                <p><strong>Excel File Format Requirements:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>File format: .xlsx or .xls</li>
+                    <li>Required columns: <code>name</code>, <code>quantity</code>, <code>cost_price</code>, <code>selling_price</code></li>
+                    <li>Optional columns: <code>total_value</code>, <code>profit</code> (will be calculated automatically if missing)</li>
+                    <li>First row should contain column headers</li>
+                    <li>Duplicate items will be merged (case-insensitive, handles singular/plural)</li>
+                </ul>
+            </div>
+            <input type="file" id="excelFileInput" class="file-input" accept=".xlsx,.xls" style="display: none;">
+            <label for="excelFileInput" class="file-label" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #28a745, #20c997); color: white; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; border: none; text-align: center;">
+                📁 Choose Excel File
             </label>
+            <div id="import-status" style="margin-top: 10px; padding: 10px; border-radius: 6px; display: none;"></div>
         </div>
         
-        <p>📁 For audio files: WAV, MP3, M4A, and other common formats are supported</p>
     </div>
 
     <script>
@@ -1154,8 +1200,9 @@
                 this.clearBtn = document.getElementById('clearBtn');
                 this.status = document.getElementById('status');
                 this.resultText = document.getElementById('resultText');
-                this.fileInput = document.getElementById('fileInput');
                 this.loading = document.getElementById('loading');
+                this.excelFileInput = document.getElementById('excelFileInput');
+                this.importStatus = document.getElementById('import-status');
                 this.isProcessing = false;
                 this.inventoryChart = null;
                 
@@ -1165,7 +1212,7 @@
             initEventListeners() {
                 this.micBtn.addEventListener('click', () => this.startSpeechToText());
                 this.clearBtn.addEventListener('click', () => this.clearText());
-                this.fileInput.addEventListener('change', (e) => this.handleFileUpload(e));
+                this.excelFileInput.addEventListener('change', (e) => this.handleExcelImport(e));
             }
 
             updateStatus(message, type = 'ready') {
@@ -1472,28 +1519,47 @@
                 document.getElementById(`${chartType}-chart-btn`)?.classList.add('active');
             }
 
-            async handleFileUpload(event) {
+
+            clearText() {
+                this.resultText.value = '';
+                this.updateStatus('Text cleared. Ready to listen.', 'ready');
+            }
+
+            async handleExcelImport(event) {
                 const file = event.target.files[0];
                 if (!file) return;
 
                 if (this.isProcessing) return;
                 
                 this.isProcessing = true;
-                this.updateStatus('Processing audio file...', 'processing');
-                this.showLoading(true);
+                this.showImportStatus('📤 Processing Excel file...\nPlease wait while we validate and import your data.', 'info');
+                
+                // Disable the import button during processing
+                const importButton = document.querySelector('label[for="excelFileInput"]');
+                if (importButton) {
+                    importButton.style.opacity = '0.6';
+                    importButton.style.pointerEvents = 'none';
+                    importButton.textContent = '📤 Processing...';
+                }
+                
+                // Validate file type
+                if (!file.name.match(/\.(xlsx|xls)$/)) {
+                    this.showImportStatus('Please select a valid Excel file (.xlsx or .xls)', 'error');
+                    this.isProcessing = false;
+                    return;
+                }
 
                 const formData = new FormData();
-                formData.append('audio_file', file);
+                formData.append('excel_file', file);
 
                 try {
-                    console.log('Uploading file:', file.name);
-                    const response = await fetch('/api/speech-to-text', {
+                    console.log('Uploading Excel file:', file.name);
+                    const response = await fetch('/api/inventory/import-excel', {
                         method: 'POST',
                         body: formData
                     });
 
-                    console.log('File upload response status:', response.status);
-                    console.log('File upload response ok:', response.ok);
+                    console.log('Excel import response status:', response.status);
                     
                     if (!response.ok) {
                         const errorText = await response.text();
@@ -1501,36 +1567,100 @@
                     }
                     
                     const result = await response.json();
-                    console.log('File upload result:', result);
+                    console.log('Excel import result:', result);
                     
                     if (result.success) {
-                        this.resultText.value = result.text;
-                        this.updateStatus(result.message, 'success');
-                        // Also send to inventory command processor
-                        await this.sendInventoryCommand(result.text);
+                        // Show detailed success message
+                        let successMessage = result.message;
+                        if (result.imported > 0 || result.updated > 0) {
+                            successMessage += `\n✅ Imported: ${result.imported} items`;
+                            successMessage += `\n🔄 Updated: ${result.updated} items`;
+                            if (result.duplicates > 0) {
+                                successMessage += `\n⚠️ Duplicates found: ${result.duplicates} items`;
+                            }
+                        }
+                        this.showImportStatus(successMessage, 'success');
+                        
+                        // Refresh inventory dashboard after successful import
+                        setTimeout(() => {
+                            this.loadInventoryDashboard();
+                        }, 1500);
                     } else {
-                        this.updateStatus(result.message, 'error');
+                        // Show detailed error message
+                        let errorMessage = result.message;
+                        if (result.errors && result.errors.length > 0) {
+                            errorMessage += '\n\n📋 Error Details:';
+                            result.errors.slice(0, 5).forEach(error => {
+                                errorMessage += `\n• ${error}`;
+                            });
+                            if (result.errors.length > 5) {
+                                errorMessage += `\n• ... and ${result.errors.length - 5} more errors`;
+                            }
+                        }
+                        this.showImportStatus(errorMessage, 'error');
                     }
                 } catch (error) {
-                    console.error('File upload error details:', error);
-                    this.updateStatus(`Error processing file: ${error.message}. Please try again.`, 'error');
+                    console.error('Excel import error:', error);
+                    this.showImportStatus(`Error importing Excel file: ${error.message}`, 'error');
                 } finally {
                     this.isProcessing = false;
-                    this.showLoading(false);
                     
                     // Reset file input
-                    this.fileInput.value = '';
+                    this.excelFileInput.value = '';
                     
-                    // Reset status after 3 seconds
+                    // Re-enable the import button
+                    const importButton = document.querySelector('label[for="excelFileInput"]');
+                    if (importButton) {
+                        importButton.style.opacity = '1';
+                        importButton.style.pointerEvents = 'auto';
+                        importButton.textContent = '📁 Choose Excel File';
+                    }
+                    
+                    // Hide status after 8 seconds for success, 15 seconds for errors
+                    const hideDelay = this.importStatus.className.includes('success') ? 8000 : 15000;
                     setTimeout(() => {
-                        this.updateStatus('🎤 Ready to listen - Click "Start Listening" and allow microphone access when prompted', 'ready');
-                    }, 3000);
+                        this.importStatus.style.display = 'none';
+                    }, hideDelay);
                 }
             }
 
-            clearText() {
-                this.resultText.value = '';
-                this.updateStatus('Text cleared. Ready to listen.', 'ready');
+            showImportStatus(message, type = 'info') {
+                // Handle multi-line messages by replacing \n with <br>
+                this.importStatus.innerHTML = message.replace(/\n/g, '<br>');
+                this.importStatus.className = `import-status ${type}`;
+                this.importStatus.style.display = 'block';
+                
+                // Set background color based on type
+                const colors = {
+                    'success': '#d4edda',
+                    'error': '#f8d7da',
+                    'info': '#d1ecf1',
+                    'warning': '#fff3cd'
+                };
+                
+                const textColors = {
+                    'success': '#155724',
+                    'error': '#721c24',
+                    'info': '#0c5460',
+                    'warning': '#856404'
+                };
+                
+                this.importStatus.style.backgroundColor = colors[type] || colors['info'];
+                this.importStatus.style.color = textColors[type] || textColors['info'];
+                
+                // Add better styling for multi-line content
+                this.importStatus.style.whiteSpace = 'pre-line';
+                this.importStatus.style.lineHeight = '1.4';
+                this.importStatus.style.padding = '12px';
+                this.importStatus.style.borderRadius = '6px';
+                this.importStatus.style.marginTop = '10px';
+                this.importStatus.style.fontSize = '0.9rem';
+                this.importStatus.style.fontFamily = 'monospace';
+                this.importStatus.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                
+                // Auto-adjust height based on content
+                this.importStatus.style.maxHeight = '200px';
+                this.importStatus.style.overflowY = 'auto';
             }
             
             // Enhanced inventory functionality
@@ -1709,6 +1839,11 @@
                         <div class="product-stats">
                             <span class="product-quantity ${stockStatus}">${product.quantity} units</span>
                             <span class="product-price">$${(product.price || 0).toFixed(2)}</span>
+                            <button class="delete-btn" onclick="safeDeleteProduct('${product.name}')" title="Delete product">
+                                <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6"/>
+                                </svg>
+                            </button>
                         </div>
                     `;
                     
@@ -1788,6 +1923,44 @@
                     this.showToast('Failed to export inventory', 'error');
                 }
             }
+            
+            async deleteProduct(productName) {
+                try {
+                    // Confirm deletion
+                    const confirmation = confirm(`Are you sure you want to delete "${productName}" from inventory?\nThis action cannot be undone.`);
+                    
+                    if (!confirmation) {
+                        return;
+                    }
+                    
+                    // Show loading state
+                    this.showToast(`Deleting ${productName}...`, 'info');
+                    
+                    const response = await fetch('/api/inventory/delete', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: productName
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.showToast(`Successfully deleted ${result.quantity} units of ${productName}`, 'success');
+                        // Refresh inventory data
+                        await this.loadInventoryDashboard();
+                    } else {
+                        this.showToast(result.message || 'Failed to delete product', 'error');
+                    }
+                    
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    this.showToast('Failed to delete product', 'error');
+                }
+            }
         }
 
         // Make app globally accessible
@@ -1809,6 +1982,18 @@
         function safeSwitchChart(type) {
             if (app && typeof app.switchChart === 'function') {
                 app.switchChart(type);
+            }
+        }
+        
+        function safeImportInventory() {
+            if (app && typeof app.excelFileInput !== 'undefined') {
+                app.excelFileInput.click();
+            }
+        }
+        
+        function safeDeleteProduct(productName) {
+            if (app && typeof app.deleteProduct === 'function') {
+                app.deleteProduct(productName);
             }
         }
         
